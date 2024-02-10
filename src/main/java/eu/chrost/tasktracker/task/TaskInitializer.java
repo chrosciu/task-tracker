@@ -11,6 +11,6 @@ public class TaskInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        taskRepository.save(new Task("Start with learning Kubernetes"));
+        taskRepository.save(new Task("Start with learning Kubernetes", false));
     }
 }

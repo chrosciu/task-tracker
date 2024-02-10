@@ -21,7 +21,10 @@ public class Task {
 
     private String description;
 
-    public Task(String description) {
+    private boolean closed;
+
+    public Task(String description, boolean closed) {
         this.description = description;
+        this.closed = closed;
     }
 }

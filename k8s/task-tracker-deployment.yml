@@ -25,7 +25,7 @@ spec:
         - env:
             - name: APP_DESCRIPTION
               value: Kubernetes local app
-          image: chrosciu/task-tracker:1
+          image: chrosciu/task-tracker:2
           name: task-tracker
           ports:
             - containerPort: 8080

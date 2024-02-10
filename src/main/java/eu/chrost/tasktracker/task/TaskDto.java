@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaskDto {
+    private long id;
     @NotBlank
     @Size(max = 255)
     private String description;
+    private boolean closed;
 }

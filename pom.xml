@@ -70,7 +70,7 @@
                 <version>3.4.0</version>
                 <configuration>
                 <to>
-                    <image>chrosciu/task-tracker:1</image>
+                    <image>chrosciu/task-tracker:2</image>
                 </to>
             </configuration>
             </plugin>
