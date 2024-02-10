@@ -29,6 +29,5 @@ spec:
           name: task-tracker
           ports:
             - containerPort: 8080
-              hostPort: 8080
               protocol: TCP
       restartPolicy: Always
