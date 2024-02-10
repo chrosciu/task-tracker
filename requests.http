@@ -13,3 +13,6 @@ Content-Type: application/json
 {
   "description": "Simple task"
 }
+
+### Close task
+PUT localhost:8080/api/tasks/1/close

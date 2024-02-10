@@ -21,7 +21,14 @@ public class Task {
 
     private String description;
 
+    private boolean closed;
+
     public Task(String description) {
         this.description = description;
+        this.closed = false;
+    }
+
+    public void close() {
+        this.closed = true;
     }
 }

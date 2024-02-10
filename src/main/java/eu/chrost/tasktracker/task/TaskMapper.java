@@ -4,11 +4,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TaskMapper {
-    public TaskDto toDto(Task task) {
-        return new TaskDto(task.getDescription());
+    public TaskOutputDto toDto(Task task) {
+        return new TaskOutputDto(task.getId(), task.getDescription(), task.isClosed());
     }
 
-    public Task fromDto(TaskDto taskDto) {
+    public Task fromDto(TaskInputDto taskDto) {
         return new Task(taskDto.getDescription());
     }
 }

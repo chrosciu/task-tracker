@@ -1,7 +1,5 @@
 package eu.chrost.tasktracker.task;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskDto {
-    @NotBlank
-    @Size(max = 255)
+public class TaskOutputDto {
+    private long id;
     private String description;
+    private boolean closed;
 }
