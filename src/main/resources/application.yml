@@ -1,2 +1,20 @@
 app:
   description: Standalone app
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/task-tracker
+    username: admin
+    password: admin
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+logging:
+  level:
+    sql: DEBUG
+    org:
+      hibernate:
+        orm:
+          jdbc:
+            bind: TRACE
