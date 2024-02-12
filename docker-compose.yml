@@ -1,7 +1,32 @@
+# NOTE: network `task-tracker-net` and volume `task-tracker-data` must be created before executing this file !
+
 services:
+  task-tracker-db:
+    networks:
+      - task-tracker-net
+    ports:
+      - 5432:5432
+    volumes:
+      - task-tracker-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=task-tracker
+    image: postgres:16
   task-tracker:
+    networks:
+      - task-tracker-net
     ports:
       - 8080:8080
     environment:
       - APP_DESCRIPTION=Docker run app
-    image: chrosciu/task-tracker:1
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://task-tracker-db:5432/task-tracker
+    image: chrosciu/task-tracker:3
+networks:
+  task-tracker-net:
+    external: true
+    name: task-tracker-net
+volumes:
+  task-tracker-data:
+    external:
+      name: task-tracker-data
