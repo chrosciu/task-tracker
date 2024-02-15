@@ -124,4 +124,6 @@ sprawdzenie: gcloud services list --enabled --filter="NAME=logging.googleapis.co
 
 wlaczenie: gcloud services enable logging.googleapis.com
 
+USEFUL LINKS:
 
+https://medium.com/google-cloud/kubernetes-nodeport-vs-loadbalancer-vs-ingress-when-should-i-use-what-922f010849e0
