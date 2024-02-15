@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose.yml convert
+    kompose.version: 1.32.0 (765fde254)
+  labels:
+    io.kompose.service: task-tracker-db
+  name: task-tracker-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: task-tracker-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose.yml convert
+        kompose.version: 1.32.0 (765fde254)
+      labels:
+        io.kompose.network/task-tracker-net: "true"
+        io.kompose.service: task-tracker-db
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: task-tracker
+            - name: POSTGRES_PASSWORD
+              value: admin
+            - name: POSTGRES_USER
+              value: admin
+          image: postgres:16
+          name: task-tracker-db
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: task-tracker-data
+      restartPolicy: Always
+      volumes:
+        - name: task-tracker-data
+          persistentVolumeClaim:
+            claimName: task-tracker-data
