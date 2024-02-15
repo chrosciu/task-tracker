@@ -1,0 +1,127 @@
+docker build -t task-tracker:1 .
+
+docker run -d -p 8080:8080 -e APP_DESCRIPTION='Docker run app' task-tracker:1
+
+mvn compile jib:dockerBuild
+
+docker login -u chrosciu
+
+
+docker run --rm -it -v //$(PWD):/opt kompose sh -c "cd /opt && kompose --file docker-compose.yml convert"
+
+docker run --rm -it -v /$PWD:/opt kompose sh -c "cd /opt && kompose --file docker-compose.yml convert"
+
+KUBERNETES DASHBOARD
+
+https://github.com/kubernetes/dashboard
+
+https://github.com/kubernetes/dashboard/releases/tag/v3.0.0-alpha0
+
+https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml - yml z artefaktami do zdeployowania (UWAGA: nalezy go "lekko" przeedytowac :))
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+
+https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md
+
+kubectl proxy
+
+kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d
+
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/workloads?namespace=default
+
+
+* Wylaczenie koniecznosci logowania do dashboardu.
+
+Wymaga uprzedniego przerobienia pliku https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml:
+
+1) w miejscu gdzie znajduje sie linia:
+
+- --auto-generate-certificates
+
+dodajemy dodatkowe wpisy
+
+- --enable-skip-login
+- --disable-settings-authorizer 
+
+2) zmieniamy calkowicie wpis rules w obiekcie ClusterRole dla kubernetes dashboard - odblokowujac wszystko co sie dashboard
+
+rules:
+  - verbs:
+      - '*'
+    apiGroups:
+      - '*'
+    resources:
+      - '*'
+  - verbs:
+      - '*'
+    nonResourceURLs:
+      - '*'
+
+(aby oszczedzic sobie pisania calosc pliku znajduje sie w repozytorium)
+
+* Tymczasowe udostepnienie portu jakiegos poda (mozna uzyc np. w celu zdalnego debugowania albo dostepu do bazy)
+
+kubectl port-forward <pod-name> 8080:8080
+
+* Skalowanie ilosci podow
+
+kubectl scale --replicas=5 deployment task-tracker
+
+mozna tez przeedytowac plik z deploymentem i zrobic kubectl apply
+
+
+
+* Rollout nowej wersji
+
+kubectl set image deployment task-tracker task-tracker=chrosciu/task-tracker:2
+
+mozna tez przeedytowac plik z deploymentem i zrobic kubectl apply
+
+nastepnie mozna zapisac powod dlaczego to zrobilismy:
+
+kubectl annotate deployment task-tracker kubernetes.io/change-cause="rolled back"
+
+kubectl rollout history deployment task-tracker
+
+kubectl rollout undo deployment task-tracker
+
+kubectl rollout undo deployment task-tracker --to-revision=4
+
+kubectl get events --sort-by=.metadata.creationTimestamp
+
+BAZA DANYCH 
+
+* na oddzielnych kontenerach:
+
+docker volume create task-tracker-data
+
+docker network create task-tracker-net
+
+docker run --name task-tracker-db --network task-tracker-net -p 5432:5432 -v task-tracker-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=admin -e POSTGRES_USER=admin -e POSTGRES_DB=task-tracker -d postgres:16
+
+UWAGA: nie podmontowanie wolumenu przy docker run spowoduje utworzenie wolumenu anonimowego !
+
+\\wsl$\docker-desktop-data\data\docker\volumes
+
+UWAGA: stworzenie wlasnego network jest niezbedne do tego aby dalo sie odwolac do kontenera z baza po jego nazwie !
+
+docker run --name task-tracker --network task-tracker-net -p 8080:8080 -e APP_DESCRIPTION='Docker run app' -e SPRING_DATASOURCE_URL='jdbc:postgresql://task-tracker-db:5432/task-tracker' -d chrosciu/task-tracker:3
+
+docker volume rm task-tracker-data
+
+docker network rm task-tracker-net
+
+* z uzyciem docker compose - podawanie container_name jest zbedne - dostep z jednego kontenera do drugiego realizowany jest za pomoca nazwy service
+
+
+* PROBLEMY Z LOGOWANIEM NA GKE
+
+https://cloud.google.com/kubernetes-engine/docs/troubleshooting/logging
+
+zwykle chodzi o kwestie numer 1 - czyli nie wlaczone logowanie w projekcie
+
+sprawdzenie: gcloud services list --enabled --filter="NAME=logging.googleapis.com"
+
+wlaczenie: gcloud services enable logging.googleapis.com
+
+
