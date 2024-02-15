@@ -18,16 +18,19 @@ spec:
         kompose.cmd: kompose --file docker-compose.yml convert
         kompose.version: 1.32.0 (765fde254)
       labels:
-        io.kompose.network/opt-default: "true"
+        io.kompose.network/task-tracker-net: "true"
         io.kompose.service: task-tracker
     spec:
       containers:
         - env:
             - name: APP_DESCRIPTION
-              value: Kubernetes local app
-          image: chrosciu/task-tracker:2
+              value: Docker run app
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://task-tracker-db:5432/task-tracker
+          image: chrosciu/task-tracker:3
           name: task-tracker
           ports:
             - containerPort: 8080
+              hostPort: 8080
               protocol: TCP
       restartPolicy: Always
