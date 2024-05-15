@@ -141,3 +141,42 @@ docker compose down
 ```shell
 docker compose ps
 ```
+
+# Kubernetes Dashboard
+
+Jest to narzędzie umożliwiające zarządzanie klastrem Kubernetes za pomocą aplikacji webowej. 
+Jako takie nie jest niezbędne do pracy z Kubernetesem, ale znacząco ją ułatwia, szczególnie dla osób początkujących.
+
+## Instalacja
+
+Najnowsza wersja dashboardu wymaga instalacji z użyciem managera pakietów Helm tak jak jest to opisane w dokumentacji:
+
+[https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/)
+
+Helm sam w sobie jest dość rozbudowanym narzędziem a jego wprowadzenie zajęłoby zbyt dużo czasu i zaciemniło cel warsztatów - dlatego też zainstalujemy nieco starszą wersję w sposób "klasyczny".
+W tym celu użyjemy pliku deskryptora `k8s/kubernetes-dashboard.yml` - instalujemy go komendą:
+
+```shell
+kubectl apply -f k8s/kubernetes-dashboard.yml
+```
+
+Plik ten pochodzi ze starszego releasu narzędzia i dodatkowo jest zmodyfikowany przeze mnie tak, aby wyłączyć konieczność autoryzacji przy wejściu na dashboard.
+
+Service wystawiany przez dashboard jest typu `ClusterIP` (domyślnego) co uniemożliwia dostęp do niego spoza klastra. 
+Aby móc się z nim skomunikować niezbędne jest włączenie proxy pozwalającego na tymczasowy i kontrolowany dostęp do klastra: 
+
+```shell
+kubectl proxy
+```
+
+Nie podajemy portu, zatem będzie użyty domyślny (8001).
+
+Teraz już możemy dostać się do dashboardu pod adresem:
+
+[http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/workloads?namespace=default](http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/workloads?namespace=default)
+
+## Deinstalacja
+
+```shell
+kubectl delete -f k8s/kubernetes-dashboard.yml
+```
