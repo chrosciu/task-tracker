@@ -6,6 +6,12 @@
 docker build -t chrosciu/task-tracker:1 .
 ```
 
+## Budowanie obrazu za pomocą narzędzia Jib (wykorzystuje plugin do Mavena)
+
+```shell
+mvn clean compile jib:dockerBuild
+```
+
 ## Sprawdzenie czy obraz się zbudował
 
 ```shell
@@ -301,3 +307,44 @@ Następnie można sprawdzić czy logowanie jest faktycznie włączone:
 ```shell
 gcloud services list --enabled --filter="NAME=logging.googleapis.com"
 ```
+
+# Kubernetes - rolling update
+
+## Wdrożenie nowej wersji kontenera w ramach deploymentu
+
+```shell
+kubectl set image deployment/task-tracker task-tracker=chrosciu/task-tracker:2
+```
+
+Można również:
+* przeedytować plik `k8s/task-tracker-deployment.yml` i wykonać `kubectl apply -f k8s/task-tracker-deployment.yml`
+* przeedytować deskryptor deploymentu w Kubernetes Dashobard - po zapisaniu nastąpi redeploy
+
+## Sprawdzenie historii wdrożeń dla danego deploymentu
+
+```shell
+kubectl rollout history deployment/task-tracker
+```
+
+## Wycofanie ostatniego wdrożenia
+
+```shell
+kubectl rollout undo deployment/task-tracker
+```
+
+## Cofnięcie do konkretnej wersji wdrożenia
+
+```shell
+kubectl rollout undo deployment/task-tracker --to-revision=1
+```
+
+## Listing wszystkich eventów w ramach klastra
+
+Posortowane od najstarszego, pozwala na inwestygację jeśli coś nie działa
+
+```shell
+kubectl get events --sort-by=.metadata.creationTimestamp
+```
+
+
+
