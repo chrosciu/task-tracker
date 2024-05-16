@@ -142,6 +142,89 @@ docker compose down
 docker compose ps
 ```
 
+# Kubernetes
+
+## Instalacja deploymentu
+
+```shell
+kubectl apply -f k8s/task-tracker-deployment.yml
+```
+
+Aby sprawdzić czy deployment i pody są widoczne:
+
+```shell
+kubectl show deployments
+```
+
+```shell
+kubectl show pods
+```
+
+## Przejrzenie logów z poda
+
+```shell
+kubectl logs <pod-id>
+```
+
+Z przełącznikiem `-f` można śledzić log w trybie ciągłym
+
+## Wyświetlenie informacji na tematów deploymentów i podów
+
+```shell
+kubectl describe deployments
+```
+
+```shell
+kubectl describe pods
+```
+
+## Udostępnienie portu z poda
+
+Domyślnie pod jest widoczny tylko w klastrze. 
+Można go wystawić za pomocą serwisu, ale czasami prościej jest "na szybko" sforwardować tymczasowo port poda (np. w celu debugowania)
+
+```shell
+kubectl port-forward pod/<pod-id> 8080
+```
+
+W efekcie nasza aplikacje będzie tymczasowo dostępna na porcie 8080
+
+## Instalacja serwisu
+
+```shell
+kubectl apply -f k8s/task-tracker-service.yml
+```
+
+Sprawdzenie czy jest widoczny:
+
+```shell
+kubectl show services
+```
+
+Jeśli wszystko gra, to w tym momencie nasza aplikacja powinna być wystawiona trwale na porcie 8080
+
+## Wyświetlenie informacji o serwisie
+
+```shell
+kubectl describe services
+```
+
+## Skalowanie ilości podów
+
+```shell
+kubectl scale --replicas=3 deployment task-tracker
+```
+
+## Usunięcie zasobów
+
+```shell
+kubectl delete -f k8s/task-tracker-service.yml
+```
+
+```shell
+kubectl delete -f k8s/task-tracker-deployment.yml
+```
+
 # Kubernetes Dashboard
 
 Jest to narzędzie umożliwiające zarządzanie klastrem Kubernetes za pomocą aplikacji webowej. 
@@ -179,4 +262,22 @@ Teraz już możemy dostać się do dashboardu pod adresem:
 
 ```shell
 kubectl delete -f k8s/kubernetes-dashboard.yml
+```
+
+## Wyświetlenie dostępnych kontekstów
+
+Narzędzie kubectl może pracować w wielu kontekstach - standardowo zaczynamy od jednego (Docker Desktop).
+Kolejny kontekst będzie reprezentował klaster na GKE (Google Kubernetes Engine) - dodajemy go za pomocą narzędzia gcloud.
+Dokładna składnia będzie do odczytania w panelu sterowania GKE.
+
+Konteksty wyświetlamy następująco:
+
+```shell
+kubectl config get-contexts
+```
+
+## Przełączanie się między kontekstami
+
+```shell
+kubectl config use-context <context-id>
 ```
