@@ -237,6 +237,7 @@ Najnowsza wersja dashboardu wymaga instalacji z użyciem managera pakietów Helm
 [https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/)
 
 Helm sam w sobie jest dość rozbudowanym narzędziem a jego wprowadzenie zajęłoby zbyt dużo czasu i zaciemniło cel warsztatów - dlatego też zainstalujemy nieco starszą wersję w sposób "klasyczny".
+
 W tym celu użyjemy pliku deskryptora `k8s/kubernetes-dashboard.yml` - instalujemy go komendą:
 
 ```shell
@@ -246,6 +247,7 @@ kubectl apply -f k8s/kubernetes-dashboard.yml
 Plik ten pochodzi ze starszego releasu narzędzia i dodatkowo jest zmodyfikowany przeze mnie tak, aby wyłączyć konieczność autoryzacji przy wejściu na dashboard.
 
 Service wystawiany przez dashboard jest typu `ClusterIP` (domyślnego) co uniemożliwia dostęp do niego spoza klastra. 
+
 Aby móc się z nim skomunikować niezbędne jest włączenie proxy pozwalającego na tymczasowy i kontrolowany dostęp do klastra: 
 
 ```shell
@@ -266,7 +268,7 @@ kubectl delete -f k8s/kubernetes-dashboard.yml
 
 ## Wyświetlenie dostępnych kontekstów
 
-Narzędzie kubectl może pracować w wielu kontekstach - standardowo zaczynamy od jednego (Docker Desktop).
+Narzędzie `kubectl` może pracować w wielu kontekstach - standardowo zaczynamy od jednego (Docker Desktop).
 Kolejny kontekst będzie reprezentował klaster na GKE (Google Kubernetes Engine) - dodajemy go za pomocą narzędzia gcloud.
 Dokładna składnia będzie do odczytania w panelu sterowania GKE.
 
@@ -280,4 +282,22 @@ kubectl config get-contexts
 
 ```shell
 kubectl config use-context <context-id>
+```
+
+# Google Kubernetes Engine
+
+## Włączanie logowania
+
+Z niewiadomych przyczyn klaster nie ma włączonej domyślnie opcji zbierania logów na dashboardzie co utrudnia debugowanie ewentualnych problemów na podach.
+
+By włączyć logowanie należy wydać polecenie:
+
+```shell
+gcloud services enable logging.googleapis.com
+```
+
+Następnie można sprawdzić czy logowanie jest faktycznie włączone:
+
+```shell
+gcloud services list --enabled --filter="NAME=logging.googleapis.com"
 ```
