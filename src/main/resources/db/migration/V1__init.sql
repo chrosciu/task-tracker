@@ -6,3 +6,5 @@ create table task (
                       description varchar(255),
                       primary key (id)
 );
+
+insert into task(closed, id, description) values (false, nextval('task_seq'), 'Start with learning Kubernetes');
