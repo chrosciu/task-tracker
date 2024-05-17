@@ -346,5 +346,81 @@ Posortowane od najstarszego, pozwala na inwestygację jeśli coś nie działa
 kubectl get events --sort-by=.metadata.creationTimestamp
 ```
 
+# Baza danych z użyciem kontenerów
 
+Aby postawić bazę danych na kontenerze niezbędne jest poradzenie sobie z dwoma wyzwaniami:
+* sieć - kontenery muszą się nawzajem widzieć (domyślnie bowiem każdy kontener działa w izolowanej sieci)
+* wolumeny - kontener musi mieć możliwość utrwalania danych tak aby przeżyły one jego restart
 
+## Tworzenie sieci
+
+```shell
+docker network create task-tracker-net
+```
+
+Stworzona sieć jest domyślnego typu (bridge). Będzie można do niej dołączać kontenery - będą się one nawzajem widzieć (po nazwie)
+
+## Lista sieci i informacje o nich
+
+```shell
+docker network ls
+```
+
+```shell
+docker network inspect task-tracker-net
+```
+
+## Tworzenie wolumenu
+
+```shell
+docker volume create task-tracker-data
+```
+
+Stworzony wolumen będzie dostępny w ramach systemu plików Dockera. W systemie Windows jest to ścieżka: `\\wsl$\docker-desktop-data\data\docker\volumes`
+Kontener można uruchomić bez podania wolumenu, ale wtedy zostanie stworzony wolumen anonimowy.
+
+## Lista wolumenów i informacje o nich
+
+```shell
+docker volume ls
+```
+
+```shell
+docker volume inspect task-tracker-data
+```
+
+## Uruchomienie bazy danych
+
+```shell
+docker run --name task-tracker-db --network task-tracker-net -p 5432:5432 -v task-tracker-data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=admin -e POSTGRES_USER=admin -e POSTGRES_DB=task-tracker -d postgres:16
+```
+
+Uruchomiona w ten sposób baza jest dostępna lokalnie na porcie 5432 i można się do niej podłączyć zewnętrznym klientem
+
+## Uruchomienie aplikacji
+
+```shell
+docker run --name task-tracker --network task-tracker-net -p 8080:8080 -e APP_DESCRIPTION='Docker run app' -e SPRING_DATASOURCE_URL='jdbc:postgresql://task-tracker-db:5432/task-tracker' -d chrosciu/task-tracker:3
+```
+
+## Usunięcie sieci
+
+```shell
+docker network rm task-tracker-net
+```
+
+## Usunięcie wolumenu
+
+```shell
+docker volume rm task-tracker-data
+```
+
+**Wolumen można usunąć tylko po tym gdy zostanie usunięty kontener(y), który(e) go używa(ją) !**
+
+## Sieć z użyciem docker compose
+
+Przy użyciu `docker compose` można pominąć ręczne tworzenie sieci.
+
+W takim przypadku zostanie stworzona sieć o nazwie takiej jak nazwa folderu gdzie znajduje się plik `docker-compose.yml`
+
+W naszym przypadku zdecydowałem się jednak na użycie istniejącej sieci (za pomocą property `external` ustawionego na `true`)
