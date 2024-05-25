@@ -2,6 +2,7 @@ package eu.chrost.tasktracker.task;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,12 +19,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
+@Slf4j
 public class TaskApi {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
 
     @GetMapping
     public ResponseEntity<List<TaskOutputDto>> getAllTasks() {
+        log.info("Get all tasks");
         return ResponseEntity.ok(taskRepository.findAll().stream()
                 .map(taskMapper::toDto)
                 .toList());
@@ -31,6 +34,7 @@ public class TaskApi {
 
     @PostMapping
     public ResponseEntity<Void> createTask(@RequestBody @Valid TaskInputDto taskDto) {
+        log.info("Create task: {}", taskDto);
         taskRepository.save(taskMapper.fromDto(taskDto));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -38,6 +42,7 @@ public class TaskApi {
     @PutMapping("{id}/close")
     @Transactional
     public ResponseEntity<Void> closeTask(@PathVariable long id) {
+        log.info("Close task: {}", id);
         var task = taskRepository.findById(id);
         task.ifPresent(Task::close);
         return ResponseEntity.noContent().build();
