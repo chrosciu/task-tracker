@@ -159,11 +159,11 @@ kubectl apply -f k8s/task-tracker-deployment.yml
 Aby sprawdzić czy deployment i pody są widoczne:
 
 ```shell
-kubectl show deployments
+kubectl get deployments
 ```
 
 ```shell
-kubectl show pods
+kubectl get pods
 ```
 
 ## Przejrzenie logów z poda
